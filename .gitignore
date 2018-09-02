@@ -1,5 +1,8 @@
 /pedly
 /test
+/.idea
+log/
+venv/
 /render
 /freebuf.py
 *.log
