@@ -2,6 +2,7 @@
 #coding=utf-8
 
 
+import socket
 import urllib
 import urllib2
 import  ssl
@@ -33,6 +34,8 @@ elif os.uname()[0] == "Windows":
 
 data_url_format = "data:image/%(image_type)s;base64,%(image_base64)s"
 style_format = "<style type=\"text/css\">\n%(css_text)s</style>"
+
+support_image_data_type = ["png", "jpeg", "gif"]
 
 protocol = ""
 host = ""
@@ -113,7 +116,33 @@ def gzip_unpack(data):
 	f = GzipFile(fileobj=buf)
 	return f.read()
 
+def get_data_from_file(path):
+	html = ""
+	try:
+		fd = open(path, "r")
+		html = fd.read()
+		pass
+	except Exception as e:
+		raise e
+	finally:
+		if None != fd:
+			fd.close()
+		pass
+	return html
+
 def get_data(url, headers = {}, content_type = {}):
+	times = 0
+	while times < 10:
+		try:
+			return _get_data(url, headers, content_type)
+			pass
+		except Exception as e:
+			# raise e
+			pass
+		times += 1
+	raise e
+
+def _get_data(url, headers = {}, content_type = {}):
 	print url
 	get_temp_host(url)
 	global _host
@@ -130,10 +159,14 @@ def get_data(url, headers = {}, content_type = {}):
 	_headers.update(headers)
 	_headers.update(global_headers)
 	print _headers
-	req = urllib2.Request(url, headers = _headers)
+	# **************************************************
+	# urllib2.HTTPError: HTTP Error 400: Bad Request
+	# urllib2.quote(url)
+	# **************************************************
+	req = urllib2.Request(urllib2.quote(url, ":/=&?"), headers = _headers)
 	# res = urllib2.urlopen(req)
 	# solve ssl error
-	res = urllib2.urlopen(req, context=ssl._create_unverified_context())
+	res = urllib2.urlopen(req, timeout=30, context=ssl._create_unverified_context())
 	print res.info()
 	# print res.headers["Content-Type"]\
 	try:
@@ -237,6 +270,19 @@ def find_image_url(html):
 			img_src = website + img_src
 		if not img_src.startswith("http"):
 			global path
+
+			# deal with following situation
+			# static/drops/full/e0e2b28abc7ca327236f462324ef315e652220c4.jpg
+			# http://www.anquan.us/static/drops/papers-17213.html
+			# http://www.anquan.us/static/drops/full/e0e2b28abc7ca327236f462324ef315e652220c4.jpg
+			dirs = path[:path.rindex('/') + 1].split("/")
+			img_dirs = img_src.split("/")
+			index = 0
+			while dirs.count(img_dirs[index]) > 0:
+				index += 1
+			img_src = "/".join(img_dirs[index:])
+
+
 			img_src = website + path[:path.rindex('/') + 1] + img_src
 		# image_url_list.append(img_src)
 		data_url = image_url_to_data_url(img_src)
