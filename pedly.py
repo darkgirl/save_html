@@ -6,8 +6,11 @@ from bs4 import BeautifulSoup
 import save_html
 import save_pdf
 
-url_format = "https://bbs.pediy.com/search-原创-1-%d.htm"
+# url_format = "https://bbs.pediy.com/search-原创-1-%d.htm"
+url_format = "https://bbs.pediy.com/new-digest-%d.htm"
 referer = "https://bbs.pediy.com/"
+max_page = 1219
+
 
 def get_article_link(html):
 	article_link_list = []
@@ -22,8 +25,8 @@ def get_article_link(html):
 	return article_link_list
 
 def main():
-	index = 49
-	while index < 1219:
+	index = 50
+	while index < 468:
 		url = url_format % (index)
 		try:
 			html = save_html.get_data(url)
@@ -37,7 +40,9 @@ def main():
 			for article_link in article_link_list:
 				try:
 					save_pdf.exclude_tags_default.append(".avatar_info")
-					save_pdf.save_pdf(article_link, ["div .card"], directory="./pedly/")
+					save_pdf.exclude_tags_default.append(".avatar-1")
+					save_pdf.exclude_tags_default.append(".post > .vtop")
+					save_pdf.save_pdf_by_url(article_link, ["div .card", "div.card.p-1 > div"], directory="../../Document/pedly/")
 				except Exception as e:
 					traceback.print_exc()
 					# raise e
@@ -57,6 +62,7 @@ def main():
 			print  index
 
 			traceback.print_exc()
+			# exit(0)
 
 			fhandle = open("pediy.log", "a")
 			fhandle.write("[start]\n")

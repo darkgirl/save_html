@@ -16,10 +16,11 @@ from selenium import webdriver
 
 import time
 import os
+import platform
 # set the position of chrome-driver
-if os.uname()[0] == "Linux":
+if platform.uname()[0] == "Linux":
 	os.environ['PATH'] = "/usr/lib/chromium-browser/:" + os.environ['PATH']
-elif os.uname()[0] == "Windows":
+elif platform.uname()[0] == "Windows":
 	os.environ['PATH'] = "./Chrome/Application/;" + os.environ['PATH']
 
 
@@ -325,7 +326,7 @@ if __name__ == '__main__':
 	html = get_data(article_url)
 	title = page_title(html)
 
-	html = find_image_url(html)
+	# html = find_image_url(html)
 	# image_url_list = find_image_url(html)
 	# for image_url in image_url_list:
 	# 	data_url = image_url_to_data_url(image_url)

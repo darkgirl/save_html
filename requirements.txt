@@ -1,4 +1,4 @@
 bs4
 requests
-PyV8
+lxml
 selenium

@@ -20,21 +20,22 @@ def get_article_links(url):
 		article_links.append(url_referer + link.encode("utf-8"))
 	return article_links
 
+filename = "log/400.txt"
 def main():
 	try:
 		# article_links = get_article_links(url_referer)
-		fd = open("log/400.txt", "r")
+		fd = open(filename, "r")
 		article_links = fd.read().split("\n")
 		fd.close()
 		for article_link in article_links:
 			try:
 				print article_link
 				# print chardet.detect(article_link)
-				save_pdf.save_pdf(article_link, ["body"], directory="./anquan/")
+				save_pdf.save_pdf_by_url(article_link, ["body"], directory="./anquan/")
 				# exit(0)
 				article_links.remove(article_link)
 
-				fd = open("log/400.txt", "w")
+				fd = open(filename, "w")
 				fd.write("\n".join(article_links))
 				fd.close()
 				pass
@@ -55,7 +56,7 @@ def main():
 		raise e
 		pass
 
-	fd = open("log/400.txt", "w")
+	fd = open(filename, "w")
 	fd.write("\n".join(article_links))
 	fd.close()
 
